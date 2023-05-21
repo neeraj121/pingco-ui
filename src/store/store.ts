@@ -4,11 +4,13 @@ import {
     Action,
     combineReducers,
 } from "@reduxjs/toolkit";
-import authReducer from "./auth/auth.reducer";
 import logger from "redux-logger";
+import authReducer from "./auth/auth.reducer";
+import numberBlocksReducer from "./numberBlocks/numberBlocks.reducer";
 
 const rootReducer = combineReducers({
     auth: authReducer,
+    numberBlocks: numberBlocksReducer,
 });
 
 export const store = configureStore({

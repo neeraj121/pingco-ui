@@ -5,6 +5,7 @@ import Main from "./routes/main/main.component";
 import Register from "./routes/register/register.component";
 import Home from "./routes/home/home.component";
 import Login from "./routes/login/login.component";
+import NumberBlocks from "./routes/number-blocks/number-blocks.component";
 
 function App() {
     const routes: RouteObject[] = [
@@ -23,6 +24,10 @@ function App() {
                 {
                     path: "login",
                     element: <Login />,
+                },
+                {
+                    path: "number-blocks",
+                    element: <NumberBlocks />,
                 },
             ],
         },

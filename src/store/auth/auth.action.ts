@@ -12,7 +12,13 @@ export const loginUserAsync = createAsyncThunk(
         try {
             const response = await axios.post(
                 `${process.env.REACT_APP_API_URL}/api/auth`,
-                loginFields
+                loginFields,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-RequestScope": "20",
+                    },
+                }
             );
             if (response?.data?.token) {
                 return response.data;

@@ -98,3 +98,44 @@ export const FitIcon = styled.svg`
     height: 100%;
     object-fit: contain;
 `;
+
+type IconButtonProps = {
+    background?: string;
+    borderRadius?: string;
+};
+export const IconButton = styled.button<IconButtonProps>`
+    display: inline-block;
+    position: relative;
+    padding: 0.2rem;
+    border: 0;
+    outline: 0;
+    border-radius: ${(props) => props.borderRadius || "0.25rem"};
+    background: ${(props) => props.background || "transparent"};
+
+    & > svg {
+        width: 1.2rem;
+        height: 1.2rem;
+        object-fit: contain;
+    }
+`;
+
+export const Table = styled.table`
+    width: 100%;
+    border: 1px solid var(--border-color);
+
+    thead {
+        background: var(--bg-grey);
+    }
+    th {
+        text-align: left;
+        padding: 0.75rem 0.5rem;
+        vertical-align: top;
+    }
+    tr {
+        border-bottom: 1px solid var(--border-color);
+    }
+    td {
+        padding: 0.5rem;
+        vertical-align: top;
+    }
+`;

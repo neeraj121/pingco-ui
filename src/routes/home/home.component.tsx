@@ -9,6 +9,8 @@ const Home: React.FC<HomeProps> = () => {
             <StyledLink to="/register">Register</StyledLink>
             or
             <StyledLink to="/login">Login</StyledLink>
+            or
+            <StyledLink to="/number-blocks">Number Blocks</StyledLink>
         </div>
     );
 };
