@@ -1,11 +1,20 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { registerUserAsync } from "./auth.action";
+import { loginUserAsync, registerUserAsync } from "./auth.action";
 
 type FormState = {
     isLoading: boolean;
     error: string | null;
     success: string | null;
 };
+
+type User = {
+    token: string;
+    expiration: string;
+    refreshToken: string;
+    refreshExpiration: string;
+    defaultCompany: string;
+    user: string;
+} | null;
 
 const defaultFormState = {
     isLoading: false,
@@ -15,10 +24,14 @@ const defaultFormState = {
 
 type AuthState = {
     registerFormState: FormState;
+    loginFormState: FormState;
+    user: User;
 };
 
 const initialState: AuthState = {
     registerFormState: { ...defaultFormState },
+    loginFormState: { ...defaultFormState },
+    user: null,
 };
 
 const authSlice = createSlice({
@@ -27,6 +40,9 @@ const authSlice = createSlice({
     reducers: {
         resetRegisterFormState: (state) => {
             state.registerFormState = { ...defaultFormState };
+        },
+        resetLoginFormState: (state) => {
+            state.loginFormState = { ...defaultFormState };
         },
     },
     extraReducers: (builder) => {
@@ -47,8 +63,29 @@ const authSlice = createSlice({
                     action.error.message ||
                     "There was an unexpected error. Please try again later.";
                 state.registerFormState.success = null;
+            })
+            .addCase(loginUserAsync.pending, (state) => {
+                state.loginFormState.isLoading = true;
+                state.loginFormState.error = null;
+                state.loginFormState.success = null;
+            })
+            .addCase(loginUserAsync.fulfilled, (state, action) => {
+                state.loginFormState.isLoading = false;
+                state.loginFormState.error = null;
+                state.loginFormState.success = "Logged in successfully";
+                state.user = action.payload as User;
+            })
+            .addCase(loginUserAsync.rejected, (state, action) => {
+                state.loginFormState.isLoading = false;
+                state.loginFormState.error =
+                    action.error.message ||
+                    "There was an unexpected error. Please try again later.";
+                state.loginFormState.success = null;
             });
     },
 });
+
+export const { resetRegisterFormState, resetLoginFormState } =
+    authSlice.actions;
 
 export default authSlice.reducer;

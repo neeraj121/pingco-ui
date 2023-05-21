@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { RegisterContainer, StyledLogo } from "./register.styles";
 import {
     Button,
@@ -24,6 +24,7 @@ import {
 import FormInput from "../../components/form-input/form-input.component";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import Logo from "../../assets/images/logo.svg";
+import { resetRegisterFormState } from "../../store/auth/auth.reducer";
 
 interface RegisterProps {}
 
@@ -81,6 +82,10 @@ const Register: React.FC<RegisterProps> = () => {
     const { executeRecaptcha } = useGoogleReCaptcha();
     const { isLoading, error, success } = useSelector(selectRegisterFormState);
     const [captchaError, setCaptchaError] = React.useState<string | null>(null);
+
+    useEffect(() => {
+        dispatch(resetRegisterFormState());
+    }, []);
 
     const resolver = useYupValidationResolver(validationSchema);
     const {
@@ -214,7 +219,7 @@ const Register: React.FC<RegisterProps> = () => {
                         <FormBottom>
                             <p>
                                 Already have an account?{" "}
-                                <StyledLink to="#">Login</StyledLink>
+                                <StyledLink to="/login">Login</StyledLink>
                             </p>
                             {error && (
                                 <ErrorMessage role="alert">

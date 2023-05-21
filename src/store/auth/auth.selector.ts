@@ -7,3 +7,8 @@ export const selectRegisterFormState = createSelector(
     [selectAuthSlice],
     (authSlice) => authSlice.registerFormState
 );
+
+export const selectLoginFormState = createSelector(
+    [selectAuthSlice],
+    (authSlice) => authSlice.loginFormState
+);

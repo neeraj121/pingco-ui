@@ -5,8 +5,10 @@ interface HomeProps {}
 
 const Home: React.FC<HomeProps> = () => {
     return (
-        <div className="d-flex align-items-center justify-content-center p-5">
+        <div className="d-flex flex-column align-items-center justify-content-center p-5">
             <StyledLink to="/register">Register</StyledLink>
+            or
+            <StyledLink to="/login">Login</StyledLink>
         </div>
     );
 };
