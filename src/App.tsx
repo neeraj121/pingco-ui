@@ -1,26 +1,29 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { RouteObject, useRoutes } from "react-router";
+import "./App.css";
+import "./assets/css/bootstrap-grid.css";
+import Main from "./routes/main/main.component";
+import Register from "./routes/register/register.component";
+import Home from "./routes/home/home.component";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const routes: RouteObject[] = [
+        {
+            path: "*",
+            element: <Main />,
+            children: [
+                {
+                    index: true,
+                    element: <Home />,
+                },
+                {
+                    path: "register",
+                    element: <Register />,
+                },
+            ],
+        },
+    ];
+    const content = useRoutes(routes);
+    return content;
 }
 
 export default App;

@@ -1,0 +1,7 @@
+<svg id="Help_Icon_Large" data-name="Help Icon Large" xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewBox="0 0 20 21">
+  <g id="Ellipse_29" data-name="Ellipse 29" fill="#fff" stroke="#1a202c" stroke-width="3">
+    <circle cx="10" cy="10" r="10" stroke="none"/>
+    <circle cx="10" cy="10" r="8.5" fill="none"/>
+  </g>
+  <text id="_" data-name="?" transform="translate(10 15)" fill="#1a202c" font-size="14" font-family="Roboto Condensed" font-weight="bold"><tspan x="-3.138" y="0">?</tspan></text>
+</svg>
