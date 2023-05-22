@@ -1,7 +1,11 @@
 import React, { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectNumberBlockSlice } from "../../store/numberBlocks/numberBlocks.selector";
-import { fetchNumberBlocks } from "../../store/numberBlocks/numberBlocks.action";
+import {
+    fetchNumberBlocks,
+    mergeNumberBlocks,
+    splitNumberBlocks,
+} from "../../store/numberBlocks/numberBlocks.action";
 import { Container } from "./number-blocks.styles";
 import {
     Button,
@@ -10,9 +14,9 @@ import {
     CardHeader,
     ErrorMessage,
     IconButton,
+    SuccessMessage,
     Table,
 } from "../../styles/elements.styles";
-import { NumberBlock } from "../../store/numberBlocks/numberBlocks.reducer";
 import { ReactComponent as EditSvg } from "../../assets/images/icon-edit.svg";
 import { ReactComponent as SplitSvg } from "../../assets/images/icon-split.svg";
 
@@ -51,75 +55,19 @@ const columnsToDisplay = [
 
 const NumberBlocks: React.FC<NumberBlocksProps> = () => {
     const dispatch = useAppDispatch();
-    const { isLoading, error } = useAppSelector(selectNumberBlockSlice);
-    const numberBlocks: NumberBlock[] = [
-        {
-            id: "c59426fa-2dbc-4217-ca5d-08db5805364f",
-            companyID: null,
-            company: "",
-            partnerID: null,
-            partner: "",
-            wholesalerID: "a589ebfe-a55d-4f5e-4f42-08db5770e770",
-            wholesaler: "Neeraj IPWS",
-            carrierID: "d340a23c-ee4e-4f08-b626-08d7010900d1",
-            carrier: "Default Carrier",
-            inboundCarrierID: "d340a23c-ee4e-4f08-b626-08d7010900d1",
-            inboundCarrier: "Default Carrier",
-            outboundCarrierID: "d340a23c-ee4e-4f08-b626-08d7010900d1",
-            outboundCarrier: "Default Carrier",
-            blockSize: 100,
-            pattern: null,
-            publicPool: false,
-            first: "9995632200",
-            last: "9995632299",
-            pendingUpdate: false,
-            numberBlockPortingType: 0,
-            cliPresentation: "",
-            isSpecialNumber: false,
-            internalNotes: null,
-            attribute1: null,
-            attribute2: null,
-            attribute3: null,
-        },
-        {
-            id: "9eb64672-a781-41cf-ca5e-08db5805364f",
-            companyID: null,
-            company: "",
-            partnerID: null,
-            partner: "",
-            wholesalerID: "a589ebfe-a55d-4f5e-4f42-08db5770e770",
-            wholesaler: "Neeraj IPWS",
-            carrierID: "d340a23c-ee4e-4f08-b626-08d7010900d1",
-            carrier: "Default Carrier",
-            inboundCarrierID: "d340a23c-ee4e-4f08-b626-08d7010900d1",
-            inboundCarrier: "Default Carrier",
-            outboundCarrierID: "d340a23c-ee4e-4f08-b626-08d7010900d1",
-            outboundCarrier: "Default Carrier",
-            blockSize: 100,
-            pattern: null,
-            publicPool: false,
-            first: "9995632100",
-            last: "9995632199",
-            pendingUpdate: false,
-            numberBlockPortingType: 0,
-            cliPresentation: "",
-            isSpecialNumber: false,
-            internalNotes: null,
-            attribute1: null,
-            attribute2: null,
-            attribute3: null,
-        },
-    ];
+    const {
+        isLoading,
+        error,
+        numberBlocks,
+        requestIsLoading,
+        requestSuccess,
+        requestError,
+    } = useAppSelector(selectNumberBlockSlice);
     const [selectedBlocks, setSelectedBlocks] = React.useState<string[]>([]);
 
-    // useEffect(() => {
-    //     dispatch(
-    //         fetchNumberBlocks({
-    //             wholesalerID: process.env.REACT_APP_WHOLESALER_ID || "",
-    //             token: "",
-    //         })
-    //     );
-    // }, []);
+    useEffect(() => {
+        dispatch(fetchNumberBlocks());
+    }, []);
 
     const handleSelectAllChange: React.ChangeEventHandler<HTMLInputElement> = (
         event
@@ -145,15 +93,23 @@ const NumberBlocks: React.FC<NumberBlocksProps> = () => {
     const mergeBlocksHandler: React.MouseEventHandler<HTMLButtonElement> = (
         event
     ) => {
-        console.log("Merge Blocks");
-        console.log(selectedBlocks);
+        event.preventDefault();
+        const filteredNumberBlocks = selectedBlocks.map(
+            (id) => numberBlocks.filter((block) => block.id === id)[0]
+        );
+        if (filteredNumberBlocks.length === 0) return;
+
+        dispatch(mergeNumberBlocks(filteredNumberBlocks));
     };
 
     const splitBlocksHandler = (id: string) => {
         const selectedBlock = numberBlocks.filter(
             (block) => block.id === id
         )[0];
-        console.log(selectedBlock);
+
+        if (selectedBlock) {
+            dispatch(splitNumberBlocks(selectedBlock));
+        }
     };
 
     return (
@@ -165,11 +121,24 @@ const NumberBlocks: React.FC<NumberBlocksProps> = () => {
                 <CardBody>
                     <div className="row justify-content-end mb-3">
                         <div className="col-auto">
-                            <Button onClick={mergeBlocksHandler}>
+                            <Button
+                                onClick={mergeBlocksHandler}
+                                disabled={requestIsLoading}
+                            >
                                 Merge Blocks
                             </Button>
                         </div>
                     </div>
+                    {requestSuccess && (
+                        <SuccessMessage className="text-center">
+                            {requestSuccess}
+                        </SuccessMessage>
+                    )}
+                    {requestError && (
+                        <ErrorMessage className="text-center">
+                            {requestError}
+                        </ErrorMessage>
+                    )}
                     {isLoading ? (
                         <div className="text-center">Loading...</div>
                     ) : error ? (
@@ -227,6 +196,7 @@ const NumberBlocks: React.FC<NumberBlocksProps> = () => {
                                                 <IconButton
                                                     className="me-2"
                                                     title="Edit Block"
+                                                    disabled={requestIsLoading}
                                                 >
                                                     <EditSvg />
                                                 </IconButton>
@@ -238,6 +208,9 @@ const NumberBlocks: React.FC<NumberBlocksProps> = () => {
                                                             splitBlocksHandler(
                                                                 numberBlock.id
                                                             )
+                                                        }
+                                                        disabled={
+                                                            requestIsLoading
                                                         }
                                                     >
                                                         <SplitSvg />

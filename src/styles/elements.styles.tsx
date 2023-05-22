@@ -17,6 +17,10 @@ const buttonStyles = css`
     &:hover {
         background: var(--color-accent);
     }
+    &[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 `;
 
 export const Button = styled.button`
@@ -116,6 +120,11 @@ export const IconButton = styled.button<IconButtonProps>`
         width: 1.2rem;
         height: 1.2rem;
         object-fit: contain;
+    }
+
+    &[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 `;
 

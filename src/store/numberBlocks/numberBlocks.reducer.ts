@@ -1,7 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchNumberBlocks } from "./numberBlocks.action";
+import {
+    fetchNumberBlocks,
+    mergeNumberBlocks,
+    splitNumberBlocks,
+} from "./numberBlocks.action";
 
-enum NumberBlockPortingTypeinteger {
+enum NumberBlockPortingType {
     None = 0,
     Simple = 1,
     Complex = 2,
@@ -16,25 +20,25 @@ export type NumberBlock = {
     partner: string | null;
     wholesalerID: string | null;
     wholesaler: string | null;
-    carrierID: string | null;
-    carrier: string | null;
-    inboundCarrierID: string | null;
-    inboundCarrier: string | null;
-    outboundCarrierID: string | null;
-    outboundCarrier: string | null;
+    carrierID?: string | null;
+    carrier?: string | null;
+    inboundCarrierID?: string | null;
+    inboundCarrier?: string | null;
+    outboundCarrierID?: string | null;
+    outboundCarrier?: string | null;
     blockSize: number;
-    pattern: string | null;
-    publicPool: boolean;
-    first: string | null;
-    last: string | null;
-    pendingUpdate: boolean;
-    numberBlockPortingType: NumberBlockPortingTypeinteger;
-    cliPresentation: string | null;
-    isSpecialNumber: boolean | null;
-    internalNotes: string | null;
-    attribute1: string | null;
-    attribute2: string | null;
-    attribute3: string | null;
+    pattern?: string | null;
+    publicPool?: boolean;
+    first: string;
+    last: string;
+    pendingUpdate?: boolean;
+    numberBlockPortingType?: NumberBlockPortingType;
+    cliPresentation?: string | null;
+    isSpecialNumber?: boolean | null;
+    internalNotes?: string | null;
+    attribute1?: string | null;
+    attribute2?: string | null;
+    attribute3?: string | null;
     [key: string]: any;
 };
 
@@ -43,6 +47,9 @@ type NumberBlocksState = {
     error: string | null;
     success: string | null;
     numberBlocks: NumberBlock[];
+    requestIsLoading: boolean;
+    requestError: string | null;
+    requestSuccess: string | null;
 };
 
 const initialState: NumberBlocksState = {
@@ -50,6 +57,9 @@ const initialState: NumberBlocksState = {
     error: null,
     success: null,
     numberBlocks: [],
+    requestIsLoading: false,
+    requestError: null,
+    requestSuccess: null,
 };
 
 const numberBlockSlice = createSlice({
@@ -79,6 +89,40 @@ const numberBlockSlice = createSlice({
             .addCase(fetchNumberBlocks.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error =
+                    action.error.message ||
+                    "There was an unexpected error. Please try again later.";
+            })
+            .addCase(splitNumberBlocks.pending, (state) => {
+                state.requestIsLoading = true;
+                state.requestError = null;
+                state.requestSuccess = null;
+            })
+            .addCase(splitNumberBlocks.fulfilled, (state, action) => {
+                state.requestIsLoading = false;
+                state.requestError = null;
+                state.requestSuccess = action.payload.message;
+            })
+            .addCase(splitNumberBlocks.rejected, (state, action) => {
+                state.requestIsLoading = false;
+                state.requestSuccess = null;
+                state.requestError =
+                    action.error.message ||
+                    "There was an unexpected error. Please try again later.";
+            })
+            .addCase(mergeNumberBlocks.pending, (state) => {
+                state.requestIsLoading = true;
+                state.requestError = null;
+                state.requestSuccess = null;
+            })
+            .addCase(mergeNumberBlocks.fulfilled, (state, action) => {
+                state.requestIsLoading = false;
+                state.requestError = null;
+                state.requestSuccess = action.payload.message;
+            })
+            .addCase(mergeNumberBlocks.rejected, (state, action) => {
+                state.requestIsLoading = false;
+                state.requestSuccess = null;
+                state.requestError =
                     action.error.message ||
                     "There was an unexpected error. Please try again later.";
             });
