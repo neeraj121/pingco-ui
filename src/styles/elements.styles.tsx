@@ -60,6 +60,7 @@ export const CardHeader = styled.div`
 `;
 
 export const CardBody = styled.div`
+    position: relative;
     background: var(--white);
     padding: 2rem;
 
@@ -95,6 +96,11 @@ export const SuccessMessage = styled.p`
     margin: 1rem 0;
 `;
 
+export const NeutralMessage = styled.p`
+    color: var(--color-grey);
+    margin: 1rem 0;
+`;
+
 export const FitIcon = styled.svg`
     position: absolute;
     inset: 0;
@@ -117,6 +123,7 @@ export const IconButton = styled.button<IconButtonProps>`
     background: ${(props) => props.background || "transparent"};
 
     & > svg {
+        display: block;
         width: 1.2rem;
         height: 1.2rem;
         object-fit: contain;
@@ -139,6 +146,9 @@ export const Table = styled.table`
         text-align: left;
         padding: 0.75rem 0.5rem;
         vertical-align: top;
+        &.sortable {
+            cursor: pointer;
+        }
     }
     tr {
         border-bottom: 1px solid var(--border-color);
@@ -146,5 +156,26 @@ export const Table = styled.table`
     td {
         padding: 0.5rem;
         vertical-align: top;
+    }
+
+    @media all and (max-width: 768px) {
+        tr {
+            display: block;
+            &:nth-child(even) {
+                background: var(--bg-grey);
+            }
+        }
+        thead {
+            display: none;
+        }
+        td {
+            display: block;
+            width: 100%;
+
+            &:before {
+                content: attr(data-label);
+                font-weight: 700;
+            }
+        }
     }
 `;

@@ -10,16 +10,17 @@ export const loginUserAsync = createAsyncThunk(
     "user/loginUser",
     async (loginFields: LoginFields) => {
         try {
-            const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}/api/auth`,
-                loginFields,
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-RequestScope": "20",
-                    },
-                }
-            );
+            const config = {
+                method: "post",
+                url: `${process.env.REACT_APP_API_URL}/api/ui/auth`,
+                headers: {
+                    "X-RequestScope": "20",
+                    "Content-Type": "application/json",
+                },
+                data: loginFields,
+            };
+            const response = await axios.request(config);
+
             if (response?.data?.token) {
                 return response.data;
             } else {
@@ -53,10 +54,17 @@ export const registerUserAsync = createAsyncThunk(
     "user/registerUser",
     async (registerFields: RegisterFields) => {
         try {
-            const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}/api/ui/register`,
-                registerFields
-            );
+            const config = {
+                method: "post",
+                url: `${process.env.REACT_APP_API_URL}/api/ui/register`,
+                headers: {
+                    "X-RequestScope": "20",
+                    "Content-Type": "application/json",
+                },
+                data: registerFields,
+            };
+            const response = await axios.request(config);
+
             if (response?.data) {
                 return response.data;
             } else {

@@ -119,7 +119,15 @@ const Register: React.FC<RegisterProps> = () => {
 
     return (
         <RegisterContainer>
-            <StyledLogo src={Logo} />
+            <StyledLogo to="/">
+                <img
+                    className="img-responsive"
+                    src={Logo}
+                    alt="TCAP Logo"
+                    width="230"
+                    height="49"
+                />
+            </StyledLogo>
             <Card>
                 <CardHeader>
                     <h1 className="text-center">REGISTER</h1>

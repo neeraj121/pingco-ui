@@ -91,30 +91,29 @@ export const splitNumberBlocks = createAsyncThunk(
             }
 
             // Delete the big number block
-            await axios.delete(
-                `${process.env.REACT_APP_API_URL}/api/ui/NumberBlocks/${numberBlock.id}`,
-                {
-                    headers: {
-                        accept: "application/json",
-                        "X-RequestScope": "60",
-                        Authorization: `bearer ${authToken}`,
-                    },
-                }
-            );
+            const deleteConfig = {
+                method: "delete",
+                url: `${process.env.REACT_APP_API_URL}/api/ui/NumberBlock/${numberBlock.id}`,
+                headers: {
+                    "X-RequestScope": "60",
+                    "Content-Type": "application/json",
+                    Authorization: `bearer ${authToken}`,
+                },
+            };
+            await axios.request(deleteConfig);
 
             // Create the smaller number blocks
+            const createConfig = {
+                method: "post",
+                url: `${process.env.REACT_APP_API_URL}/api/ui/NumberBlock`,
+                headers: {
+                    "X-RequestScope": "60",
+                    "Content-Type": "application/json",
+                    Authorization: `bearer ${authToken}`,
+                },
+            };
             for (let i = 0; i < splitBlocks.length; i++) {
-                await axios.post(
-                    `${process.env.REACT_APP_API_URL}/api/ui/NumberBlocks`,
-                    splitBlocks[i],
-                    {
-                        headers: {
-                            accept: "application/json",
-                            "X-RequestScope": "60",
-                            Authorization: `bearer ${authToken}`,
-                        },
-                    }
-                );
+                await axios.request({ ...createConfig, data: splitBlocks[i] });
             }
 
             return {
@@ -139,37 +138,39 @@ export const mergeNumberBlocks = createAsyncThunk(
             const mergeTestResult = checkBlockMergeConditions(numberBlocks);
             if (mergeTestResult.status === true) {
                 // Delete the smaller number blocks
+                const deleteConfig = {
+                    method: "delete",
+                    headers: {
+                        "X-RequestScope": "60",
+                        "Content-Type": "application/json",
+                        Authorization: `bearer ${authToken}`,
+                    },
+                };
                 for (let i = 0; i < numberBlocks.length; i++) {
-                    await axios.delete(
-                        `${process.env.REACT_APP_API_URL}/api/ui/NumberBlocks/${numberBlocks[i].id}`,
-                        {
-                            headers: {
-                                accept: "application/json",
-                                "X-RequestScope": "60",
-                                Authorization: `bearer ${authToken}`,
-                            },
-                        }
-                    );
+                    await axios.request({
+                        ...deleteConfig,
+                        url: `${process.env.REACT_APP_API_URL}/api/ui/NumberBlock/${numberBlocks[i].id}`,
+                    });
                 }
 
                 // Create the larger number blocks
-                await axios.post(
-                    `${process.env.REACT_APP_API_URL}/api/ui/NumberBlocks`,
-                    {
+                const createConfig = {
+                    method: "post",
+                    url: `${process.env.REACT_APP_API_URL}/api/ui/NumberBlock`,
+                    headers: {
+                        "X-RequestScope": "60",
+                        "Content-Type": "application/json",
+                        Authorization: `bearer ${authToken}`,
+                    },
+                    data: {
                         ...numberBlocks[0],
                         id: undefined,
                         first: mergeTestResult.first,
                         last: undefined,
                         blockSize: mergeTestResult.blockSize,
                     },
-                    {
-                        headers: {
-                            accept: "application/json",
-                            "X-RequestScope": "60",
-                            Authorization: `bearer ${authToken}`,
-                        },
-                    }
-                );
+                };
+                await axios.request(createConfig);
 
                 return {
                     status: "success",

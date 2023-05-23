@@ -56,7 +56,7 @@ describe("checkBlockMergeConditions", () => {
         }).toThrow("Cannot merge a block of size 100");
     });
 
-    it("throws an error when the number of blocks selected if incorrect for the merge", () => {
+    it("throws an error when the number of blocks selected is incorrect for the merge", () => {
         const numberBlock = {
             id: "c5",
             companyID: null,
@@ -258,7 +258,7 @@ describe("checkBlockMergeConditions", () => {
                         ).toString(),
                     }))
             );
-        }).toThrow("Cannot merge number blocks that are not adjacent");
+        }).toThrow("Cannot merge number blocks that are not consecutive");
     });
 
     it("returns true if the conditions are met", () => {

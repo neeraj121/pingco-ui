@@ -69,7 +69,9 @@ export const checkBlockMergeConditions = (numberBlocks: NumberBlock[]) => {
             parseInt(numberBlocks[i].first) !==
             parseInt(numberBlocks[0].first) + i * currentNumberBlockSize
         ) {
-            throw new Error("Cannot merge number blocks that are not adjacent");
+            throw new Error(
+                "Cannot merge number blocks that are not consecutive"
+            );
         }
     }
 

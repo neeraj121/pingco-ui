@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 export const LoginContainer = styled.div`
@@ -6,7 +7,7 @@ export const LoginContainer = styled.div`
     padding: 2rem;
 `;
 
-export const StyledLogo = styled.img`
+export const StyledLogo = styled(Link)`
     display: block;
     width: 100%;
     max-width: 15rem;

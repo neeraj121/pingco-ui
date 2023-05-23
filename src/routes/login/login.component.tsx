@@ -61,7 +61,15 @@ const Login: React.FC<LoginProps> = () => {
 
     return (
         <LoginContainer>
-            <StyledLogo src={Logo} />
+            <StyledLogo to="/">
+                <img
+                    className="img-responsive"
+                    src={Logo}
+                    alt="TCAP Logo"
+                    width="230"
+                    height="49"
+                />
+            </StyledLogo>
             <Card>
                 <CardHeader>
                     <h1 className="text-center">Login</h1>

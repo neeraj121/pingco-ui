@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectNumberBlockSlice } from "../../store/numberBlocks/numberBlocks.selector";
 import {
@@ -14,11 +14,13 @@ import {
     CardHeader,
     ErrorMessage,
     IconButton,
+    NeutralMessage,
     SuccessMessage,
     Table,
 } from "../../styles/elements.styles";
 import { ReactComponent as EditSvg } from "../../assets/images/icon-edit.svg";
 import { ReactComponent as SplitSvg } from "../../assets/images/icon-split.svg";
+import Loading from "../../components/loading/loading.component";
 
 interface NumberBlocksProps {}
 
@@ -54,6 +56,9 @@ const columnsToDisplay = [
 ];
 
 const NumberBlocks: React.FC<NumberBlocksProps> = () => {
+    const [sortBy, setSortBy] = useState<string>("");
+    const [sortOrder, setSortOrder] = useState<string>("asc");
+
     const dispatch = useAppDispatch();
     const {
         isLoading,
@@ -65,9 +70,40 @@ const NumberBlocks: React.FC<NumberBlocksProps> = () => {
     } = useAppSelector(selectNumberBlockSlice);
     const [selectedBlocks, setSelectedBlocks] = React.useState<string[]>([]);
 
-    useEffect(() => {
+    const refreshNumberBlocks = () => {
         dispatch(fetchNumberBlocks());
+        setSelectedBlocks([]);
+    };
+
+    useEffect(() => {
+        refreshNumberBlocks();
     }, []);
+
+    const filteredNumberBlocks = useMemo(() => {
+        if (sortBy && numberBlocks.length > 0 && numberBlocks[0][sortBy]) {
+            const sortedNumberBlocks = [...numberBlocks].sort((a, b) => {
+                if (a[sortBy] < b[sortBy]) {
+                    return sortOrder === "asc" ? -1 : 1;
+                }
+                if (a[sortBy] > b[sortBy]) {
+                    return sortOrder === "asc" ? 1 : -1;
+                }
+                return 0;
+            });
+            return sortedNumberBlocks;
+        } else {
+            return numberBlocks;
+        }
+    }, [numberBlocks, sortBy, sortOrder]);
+
+    const sortByColumn = (column: string) => {
+        if (column === sortBy) {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+        } else {
+            setSortBy(column);
+            setSortOrder("asc");
+        }
+    };
 
     const handleSelectAllChange: React.ChangeEventHandler<HTMLInputElement> = (
         event
@@ -90,25 +126,35 @@ const NumberBlocks: React.FC<NumberBlocksProps> = () => {
         }
     };
 
-    const mergeBlocksHandler: React.MouseEventHandler<HTMLButtonElement> = (
-        event
-    ) => {
+    const mergeBlocksHandler: React.MouseEventHandler<
+        HTMLButtonElement
+    > = async (event) => {
         event.preventDefault();
         const filteredNumberBlocks = selectedBlocks.map(
             (id) => numberBlocks.filter((block) => block.id === id)[0]
         );
         if (filteredNumberBlocks.length === 0) return;
 
-        dispatch(mergeNumberBlocks(filteredNumberBlocks));
+        try {
+            await dispatch(mergeNumberBlocks(filteredNumberBlocks)).unwrap();
+            refreshNumberBlocks();
+        } catch (rejectedValueOrSerializedError) {
+            console.log(rejectedValueOrSerializedError);
+        }
     };
 
-    const splitBlocksHandler = (id: string) => {
+    const splitBlocksHandler = async (id: string) => {
         const selectedBlock = numberBlocks.filter(
             (block) => block.id === id
         )[0];
 
-        if (selectedBlock) {
-            dispatch(splitNumberBlocks(selectedBlock));
+        try {
+            if (selectedBlock) {
+                await dispatch(splitNumberBlocks(selectedBlock)).unwrap();
+                refreshNumberBlocks();
+            }
+        } catch (rejectedValueOrSerializedError) {
+            console.log(rejectedValueOrSerializedError);
         }
     };
 
@@ -119,6 +165,7 @@ const NumberBlocks: React.FC<NumberBlocksProps> = () => {
                     <h1>Number Blocks</h1>
                 </CardHeader>
                 <CardBody>
+                    {requestIsLoading && <Loading />}
                     <div className="row justify-content-end mb-3">
                         <div className="col-auto">
                             <Button
@@ -129,6 +176,11 @@ const NumberBlocks: React.FC<NumberBlocksProps> = () => {
                             </Button>
                         </div>
                     </div>
+                    {requestIsLoading && (
+                        <NeutralMessage className="text-center">
+                            Loading your request
+                        </NeutralMessage>
+                    )}
                     {requestSuccess && (
                         <SuccessMessage className="text-center">
                             {requestSuccess}
@@ -140,9 +192,13 @@ const NumberBlocks: React.FC<NumberBlocksProps> = () => {
                         </ErrorMessage>
                     )}
                     {isLoading ? (
-                        <div className="text-center">Loading...</div>
+                        <NeutralMessage className="text-center">
+                            Loading...
+                        </NeutralMessage>
                     ) : error ? (
-                        <ErrorMessage role="alert">{error}</ErrorMessage>
+                        <ErrorMessage className="text-center" role="alert">
+                            {error}
+                        </ErrorMessage>
                     ) : (
                         <div>
                             <Table>
@@ -156,17 +212,30 @@ const NumberBlocks: React.FC<NumberBlocksProps> = () => {
                                             />
                                         </th>
                                         {columnsToDisplay.map((column) => (
-                                            <th key={column.key}>
-                                                {column.label}
+                                            <th
+                                                className="sortable"
+                                                key={column.key}
+                                                onClick={() =>
+                                                    sortByColumn(column.key)
+                                                }
+                                            >
+                                                {column.label}{" "}
+                                                {sortBy === column.key ? (
+                                                    sortOrder === "asc" ? (
+                                                        <span>↓</span>
+                                                    ) : (
+                                                        <span>↑</span>
+                                                    )
+                                                ) : null}
                                             </th>
                                         ))}
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {numberBlocks.map((numberBlock) => (
+                                    {filteredNumberBlocks.map((numberBlock) => (
                                         <tr key={numberBlock.id}>
-                                            <td>
+                                            <td data-label="Select: ">
                                                 <input
                                                     type="checkbox"
                                                     title="Select Block"
@@ -184,7 +253,10 @@ const NumberBlocks: React.FC<NumberBlocksProps> = () => {
                                                 />
                                             </td>
                                             {columnsToDisplay.map((column) => (
-                                                <td key={column.key}>
+                                                <td
+                                                    key={column.key}
+                                                    data-label={`${column.label}: `}
+                                                >
                                                     {column.key in numberBlock
                                                         ? numberBlock[
                                                               column.key
@@ -192,7 +264,7 @@ const NumberBlocks: React.FC<NumberBlocksProps> = () => {
                                                         : null}
                                                 </td>
                                             ))}
-                                            <td>
+                                            <td data-label="Actions: ">
                                                 <IconButton
                                                     className="me-2"
                                                     title="Edit Block"
