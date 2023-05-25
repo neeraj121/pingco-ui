@@ -1,5 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { loginUserAsync, registerUserAsync } from "./auth.action";
+import {
+    getAccessList,
+    loginUserAsync,
+    registerUserAsync,
+} from "./auth.action";
 
 type FormState = {
     isLoading: boolean;
@@ -14,6 +18,7 @@ type User = {
     refreshExpiration: string;
     defaultCompany: string;
     user: string;
+    accessDetails: any;
 } | null;
 
 const defaultFormState = {
@@ -81,6 +86,11 @@ const authSlice = createSlice({
                     action.error.message ||
                     "There was an unexpected error. Please try again later.";
                 state.loginFormState.success = null;
+            })
+            .addCase(getAccessList.fulfilled, (state, action) => {
+                if (state.user) {
+                    state.user.accessDetails = action.payload;
+                }
             });
     },
 });

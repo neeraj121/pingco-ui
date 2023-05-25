@@ -3,12 +3,13 @@ import axios from "axios";
 import { NumberBlock } from "./numberBlocks.reducer";
 import { checkBlockMergeConditions } from "../../utils/checkBlockMergeConditions";
 
-const authToken = "";
-const wholesalerID = "a589ebfe-a55d-4f5e-4f42-08db5770e770";
-
+type DefaultRequestParams = {
+    authToken: string;
+    wholesalerID: string;
+};
 export const fetchNumberBlocks = createAsyncThunk(
     "numberBlocks/fetchNumberBlocks",
-    async () => {
+    async ({ authToken, wholesalerID }: DefaultRequestParams) => {
         try {
             const response = await axios.get(
                 `${process.env.REACT_APP_API_URL}/api/ui/NumberBlocks/${wholesalerID}`,
@@ -38,9 +39,13 @@ export const fetchNumberBlocks = createAsyncThunk(
     }
 );
 
+type SplitNumberParams = {
+    authToken: string;
+    numberBlock: NumberBlock;
+};
 export const splitNumberBlocks = createAsyncThunk(
     "numberBlocks/splitNumberBlocks",
-    async (numberBlock: NumberBlock) => {
+    async ({ authToken, numberBlock }: SplitNumberParams) => {
         try {
             const splitBlocks = [];
 
@@ -131,9 +136,13 @@ export const splitNumberBlocks = createAsyncThunk(
     }
 );
 
+type MergeNumberParams = {
+    authToken: string;
+    numberBlocks: NumberBlock[];
+};
 export const mergeNumberBlocks = createAsyncThunk(
     "numberBlocks/mergeNumberBlocks",
-    async (numberBlocks: NumberBlock[]) => {
+    async ({ authToken, numberBlocks }: MergeNumberParams) => {
         try {
             const mergeTestResult = checkBlockMergeConditions(numberBlocks);
             if (mergeTestResult.status === true) {

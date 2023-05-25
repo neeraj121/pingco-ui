@@ -43,7 +43,8 @@ export const Card = styled.div`
 `;
 
 export const CardHeader = styled.div`
-    background: var(--bg-grey);
+    background: var(--color-primary);
+    color: #ffffff;
     border-bottom: 0.15rem solid var(--border-color);
     padding: 0.5rem 1.5rem;
     border-top-left-radius: 0.5rem;

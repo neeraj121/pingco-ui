@@ -21,6 +21,8 @@ import {
 import { ReactComponent as EditSvg } from "../../assets/images/icon-edit.svg";
 import { ReactComponent as SplitSvg } from "../../assets/images/icon-split.svg";
 import Loading from "../../components/loading/loading.component";
+import { selectUser } from "../../store/auth/auth.selector";
+import { StyledLink } from "../../styles/elements.styles";
 
 interface NumberBlocksProps {}
 
@@ -56,6 +58,7 @@ const columnsToDisplay = [
 ];
 
 const NumberBlocks: React.FC<NumberBlocksProps> = () => {
+    const user = useAppSelector(selectUser);
     const [sortBy, setSortBy] = useState<string>("");
     const [sortOrder, setSortOrder] = useState<string>("asc");
 
@@ -71,13 +74,20 @@ const NumberBlocks: React.FC<NumberBlocksProps> = () => {
     const [selectedBlocks, setSelectedBlocks] = React.useState<string[]>([]);
 
     const refreshNumberBlocks = () => {
-        dispatch(fetchNumberBlocks());
+        dispatch(
+            fetchNumberBlocks({
+                authToken: user?.token || "",
+                wholesalerID: user?.accessDetails?.defaultWholesalerID || "",
+            })
+        );
         setSelectedBlocks([]);
     };
 
     useEffect(() => {
-        refreshNumberBlocks();
-    }, []);
+        if (user?.accessDetails?.defaultWholesalerID) {
+            refreshNumberBlocks();
+        }
+    }, [user]);
 
     const filteredNumberBlocks = useMemo(() => {
         if (sortBy && numberBlocks.length > 0 && numberBlocks[0][sortBy]) {
@@ -136,8 +146,15 @@ const NumberBlocks: React.FC<NumberBlocksProps> = () => {
         if (filteredNumberBlocks.length === 0) return;
 
         try {
-            await dispatch(mergeNumberBlocks(filteredNumberBlocks)).unwrap();
-            refreshNumberBlocks();
+            if (user?.token) {
+                await dispatch(
+                    mergeNumberBlocks({
+                        authToken: user.token,
+                        numberBlocks: filteredNumberBlocks,
+                    })
+                ).unwrap();
+                refreshNumberBlocks();
+            }
         } catch (rejectedValueOrSerializedError) {
             console.log(rejectedValueOrSerializedError);
         }
@@ -149,14 +166,37 @@ const NumberBlocks: React.FC<NumberBlocksProps> = () => {
         )[0];
 
         try {
-            if (selectedBlock) {
-                await dispatch(splitNumberBlocks(selectedBlock)).unwrap();
+            if (user?.token && selectedBlock) {
+                await dispatch(
+                    splitNumberBlocks({
+                        authToken: user.token,
+                        numberBlock: selectedBlock,
+                    })
+                ).unwrap();
                 refreshNumberBlocks();
             }
         } catch (rejectedValueOrSerializedError) {
             console.log(rejectedValueOrSerializedError);
         }
     };
+
+    if (!user?.accessDetails?.defaultWholesalerID) {
+        return (
+            <Container>
+                <Card>
+                    <CardHeader>
+                        <h1>Number Blocks</h1>
+                    </CardHeader>
+                    <CardBody className="text-center">
+                        <ErrorMessage className="text-center">
+                            Login Expired. Please login to continue.
+                        </ErrorMessage>
+                        <StyledLink to="/login">Login</StyledLink>
+                    </CardBody>
+                </Card>
+            </Container>
+        );
+    }
 
     return (
         <Container>
